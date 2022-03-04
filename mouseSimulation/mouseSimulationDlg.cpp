@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "mouseSimulation.h"
 #include "mouseSimulationDlg.h"
+#include "AddActionDlg.h"
 #include "afxdialogex.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +64,11 @@ CmouseSimulationDlg::CmouseSimulationDlg(CWnd* pParent /*=NULL*/)
 void CmouseSimulationDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+
+	DDX_Control(pDX, IDC_LIST, m_myListCtrl);
+	DDX_Control(pDX, IDC_BUTTON_ADD_ACTION, buttonAddAction);
+	DDX_Control(pDX, IDC_BUTTON_RUN, buttonRun);
+	DDX_Control(pDX, IDC_EDIT_LOOP, editLoopCount);
 }
 
 BEGIN_MESSAGE_MAP(CmouseSimulationDlg, CDialogEx)
@@ -80,6 +86,8 @@ BEGIN_MESSAGE_MAP(CmouseSimulationDlg, CDialogEx)
 
 	ON_MESSAGE(WM_MyMessage, &CmouseSimulationDlg::OnMyMessage)
 
+	ON_BN_CLICKED(IDC_BUTTON_ADD_ACTION, &CmouseSimulationDlg::OnBnClickedButtonAddAction)
+	ON_BN_CLICKED(IDC_BUTTON_RUN, &CmouseSimulationDlg::OnBnClickedButtonRun)
 END_MESSAGE_MAP()
 
 
@@ -116,6 +124,7 @@ BOOL CmouseSimulationDlg::OnInitDialog()
 
 	InitMyMenu();					//初始化菜单
 	InitControls();					//初始化控件
+	InitMyListCtrl();				//初始化列表控件
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -191,12 +200,87 @@ BOOL CmouseSimulationDlg::InitMyMenu(void)
 	return TRUE;
 }
 
+/************************************************************************/
+/* 函数名:InitMyListCtrl
+/* 参数：无		返回值：初始化成功返回TRUE
+/* 描述：初始化列表控件的风格，并初始化列表控件的列内容									   */
+/************************************************************************/
+BOOL CmouseSimulationDlg::InitMyListCtrl(void)
+{
+	m_myListCtrl.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
+	m_myListCtrl.ModifyStyle(0,LVS_REPORT|LVS_SHOWSELALWAYS|LVS_SINGLESEL);
+
+	LVCOLUMN lvc;
+	lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH ;
+	lvc.fmt  = LVCFMT_CENTER ;
+	lvc.cx   = SERIALNUMBERWIDTH ;
+	lvc.pszText = _T("序号");
+	m_myListCtrl.InsertColumn(ID_SERIALNUMBER, &lvc);
+
+	lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+	lvc.fmt = LVCFMT_CENTER; //LVCFMT_LEFT
+	lvc.cx = ACTIONWIDTH;
+	lvc.pszText = _T("动作");
+	m_myListCtrl.InsertColumn(ID_ACTION, &lvc);
+
+	lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+	lvc.fmt = LVCFMT_CENTER;
+	lvc.cx = PARAM1WIDTH;
+	lvc.pszText = _T("参数1");
+	m_myListCtrl.InsertColumn(ID_PARAM1, &lvc);
+
+	lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+	lvc.fmt = LVCFMT_CENTER;
+	lvc.cx = PARAM2WIDTH;
+	lvc.pszText = _T("参数2");
+	m_myListCtrl.InsertColumn(ID_PARAM2, &lvc);
+
+	AddItemToListCtrl(0, CString("100"), CString("100"));
+
+	return 0;
+}
+
+/************************************************************************/
+/* 函数名:AddFileToPlayList
+/* 参数：无
+/* 描述：增加歌曲函数，同时在列表控件增加项目。                                 */
+/************************************************************************/
+void CmouseSimulationDlg::AddItemToListCtrl(int action, CString &param1, CString &param2)
+{
+	LVITEM  item;			 
+	int		nIndex;				 //当前索引位置（行）
+	CString strTmp;
+	CString strAction;
+
+	item.mask = LVIF_TEXT;	
+	item.iSubItem = 0;
+
+	item.iItem = (m_myListCtrl.GetItemCount() <= 0) ? 0 : m_myListCtrl.GetItemCount(); 
+	strTmp.Format(TEXT("%d"), ++item.iItem);				//格式化当前索引
+	item.pszText = strTmp.GetBuffer(strTmp.GetLength());	//在第一列插入序号
+
+	nIndex = m_myListCtrl.InsertItem(&item);				//在第一列插入序号
+
+	if(LEFT_CLICK == action){
+		strAction = CString(TEXT("鼠标左键"));
+	}else if(RIGHT_CLICK == action){
+		strAction = CString(TEXT("鼠标右键"));
+	}else if(KEY_INPUT == action){
+		strAction = CString(TEXT("键盘输入"));
+	}else if(DELAY_TIME == action){
+		strAction = CString(TEXT("延时"));
+	}
+	m_myListCtrl.SetItemText(nIndex, ID_ACTION, strAction);	//second column of the ListCtrl
+	m_myListCtrl.SetItemText(nIndex, ID_PARAM1, param1);
+	m_myListCtrl.SetItemText(nIndex, ID_PARAM2, param2);
+	m_myListCtrl.SetFocus();
+	m_myListCtrl.SetItemState(nIndex, LVIS_SELECTED, LVIS_SELECTED);
+}
 void CmouseSimulationDlg::OnAbout()
 {
 	CAboutDlg aboutdlg;
 	aboutdlg.DoModal();
 }
-
 
 void CmouseSimulationDlg::OnRun()
 {
@@ -208,7 +292,6 @@ void CmouseSimulationDlg::OnRun()
 	Sleep(2000);
 	input((string)"12345");
 }
-
 
 void CmouseSimulationDlg::OnSetting()
 {
@@ -223,7 +306,7 @@ void CmouseSimulationDlg::OnTimer(UINT_PTR nIDEvent)
 	if(timerId == nIDEvent)
 	{
 		GetCursorPos(&point);
-		text.Format(_T("x=%d y=%d"), point.x, point.y);
+		text.Format(_T("鼠标模拟器 (x=%d y=%d)"), point.x, point.y);
 		SetWindowText(text);
 	}
 	CDialog::OnTimer(nIDEvent);
@@ -294,4 +377,23 @@ void CmouseSimulationDlg::input(string &input)
 void CmouseSimulationDlg::close_app()
 {
 	system("taskkill  /f  /im chrome.exe");
+}
+
+
+void CmouseSimulationDlg::OnBnClickedButtonAddAction()
+{
+	CAddActionDlg actiondlg;
+	actiondlg.DoModal();
+}
+
+
+void CmouseSimulationDlg::OnBnClickedButtonRun()
+{
+	if(IDOK == MessageBox(_T("点击确定3s后开始运行!"), _T("运行"), MB_OKCANCEL))
+	{
+		Sleep(3000);
+		click(70,1060);
+		Sleep(2000);
+		input((string)"12345");
+	}
 }
