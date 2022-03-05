@@ -1,6 +1,13 @@
 #pragma once
 #include "afxwin.h"
+#include "mouseSimulationDlg.h"
 
+typedef struct
+{
+	ACTION_TYPE_E action_type;  //¼û ACTION_TYPE_E
+	CString param1;
+	CString param2;
+}ADD_ACTION_DETAIL;
 
 // CAddActionDlg ¶Ô»°¿ò
 
@@ -26,6 +33,8 @@ protected:
 	CEdit editRightY;
 	CEdit editKeyInput;
 	CEdit editDelay;
+	ADD_ACTION_DETAIL detail;
+
 public:
 	afx_msg void OnBnClickedRadioLeftClick();
 	afx_msg void OnBnClickedRadioRightClick();

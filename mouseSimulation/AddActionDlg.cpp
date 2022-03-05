@@ -65,6 +65,8 @@ void CAddActionDlg::OnBnClickedRadioLeftClick()
 	editRightY.EnableWindow(false);
 	editKeyInput.EnableWindow(false);
 	editDelay.EnableWindow(false);
+
+	detail.action_type = LEFT_CLICK;
 }
 
 
@@ -76,6 +78,8 @@ void CAddActionDlg::OnBnClickedRadioRightClick()
 	editRightY.EnableWindow(true);
 	editKeyInput.EnableWindow(false);
 	editDelay.EnableWindow(false);
+
+	detail.action_type = RIGHT_CLICK;
 }
 
 
@@ -87,6 +91,8 @@ void CAddActionDlg::OnBnClickedRadioKeyInput()
 	editRightY.EnableWindow(false);
 	editKeyInput.EnableWindow(true);
 	editDelay.EnableWindow(false);
+
+	detail.action_type = KEY_INPUT;
 }
 
 
@@ -98,10 +104,28 @@ void CAddActionDlg::OnBnClickedRadioSleep()
 	editRightY.EnableWindow(false);
 	editKeyInput.EnableWindow(false);
 	editDelay.EnableWindow(true);
+
+	detail.action_type = DELAY_TIME;
 }
 
 
 void CAddActionDlg::OnBnClickedOk()
 {
+	if(LEFT_CLICK == detail.action_type){
+		editLeftX.GetWindowText(detail.param1);
+		editLeftY.GetWindowText(detail.param2);
+	}else if(RIGHT_CLICK == detail.action_type){
+		editRightX.GetWindowText(detail.param1);
+		editRightY.GetWindowText(detail.param2);
+	}else if(KEY_INPUT == detail.action_type){
+		editKeyInput.GetWindowText(detail.param1);
+		detail.param2.Empty();
+	}else if(DELAY_TIME == detail.action_type){
+		editDelay.GetWindowText(detail.param1);
+		detail.param2.Empty();
+	}
+	HWND hwnd = AfxGetApp()->GetMainWnd()->GetSafeHwnd();
+	::SendMessage(hwnd, WM_MyMessage, (WPARAM)&detail, 0);
+
 	CDialogEx::OnOK();
 }

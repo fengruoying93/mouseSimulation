@@ -99,6 +99,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AddActionDlg.h" />
+    <ClInclude Include="cJSON.h" />
     <ClInclude Include="mouseSimulation.h" />
     <ClInclude Include="mouseSimulationDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -106,6 +108,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AddActionDlg.cpp" />
+    <ClCompile Include="cJSON.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="mouseSimulation.cpp" />
     <ClCompile Include="mouseSimulationDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

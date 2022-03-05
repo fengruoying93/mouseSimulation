@@ -1,0 +1,14 @@
+{
+	"loop":	1,
+	"actionList":	[{
+			"id":	1,
+			"action":	"Êó±ê×ó¼ü",
+			"param1":	"72",
+			"param2":	"1062"
+		}, {
+			"id":	2,
+			"action":	"ÑÓÊ±",
+			"param1":	"5000",
+			"param2":	""
+		}]
+}
